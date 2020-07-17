@@ -4,8 +4,7 @@
 	<_name>Fret Ruler</_name>
 	<id>neon22.github.fret_ruler</id>
 
-	<dependency type="executable" location="extensions">fret_ruler.py</dependency>
-	<dependency type="executable" location="extensions">inkex.py</dependency>
+	<dependency type="executable" location="inx">fret_ruler.py</dependency>
 
 	<param name="active-tab" type="notebook">
 		<page name="ruler" _gui-text="Ruler ">
@@ -24,8 +23,10 @@
 				<option value="Nroot2">Nth Root of 2</option>
 				</param>
 			<param name="descr" type="description">Next two, only if method selected.</param>
-			<param name="nth"   type="int" min="2" max="500" _gui-text="(Method=Nth Root of 2) -  N=(Notes in Scale):">0</param>
-			<param name="scala_filename" type="string" _gui-text="(Method=Scala) Scala filename:">12tet</param>
+			<hbox>
+				<param name="nth"   type="int" min="2" max="500" _gui-text="(Method=Nth Root of 2) -  N=(Notes in Scale):">0</param>
+				<param name="scala_filename" type="string" _gui-text="(Method=Scala) Scala filename:">12tet</param>
+			</hbox>
 			<param name="descr" type="description">____</param>
 			<param name="units" _gui-text="Units for following dimensions" type="optiongroup" appearance="minimal">
 				<option value="in">in</option>
@@ -40,8 +41,10 @@
 			<param name="descr" type="description">Styles:</param>
 			<param name="linewidth" type="float" min="0.01" max="2.0" precision="2"  _gui-text="Width of lines (mm)">0.1</param>
 			<param name="notch_width" type="float" min="0.0001" max="4.0" precision="4"  _gui-text="(Router template) Width of Fret notches">0.125</param>
-			<param name="annotate"    type="boolean" _gui-text="Fret numbering">true</param>
-			<param name="centerline"  type="boolean" _gui-text="Centerline">true</param>
+			<hbox>
+				<param name="annotate"    type="boolean" _gui-text="Fret numbering">true</param>
+				<param name="centerline"  type="boolean" _gui-text="Centerline">true</param>
+			</hbox>
 		</page>
 		<page name="neck" _gui-text="Neck ">
 			<param name="descr" type="description">Extra parameters to draw the Neck.</param>
@@ -167,7 +170,7 @@ Baritone guitar 28.5, 30.2 (724, 767mm)
 	</effect>
 
 	<script>
-	    <command reldir="extensions" interpreter="python">fret_ruler.py</command>
+	    <command location="inx" interpreter="python">fret_ruler.py</command>
 	</script>
 
 </inkscape-extension>
