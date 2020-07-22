@@ -89,11 +89,11 @@ def parse_scala(scala, filename, verbose=True):
 			error = "ERROR: Failed to load "+filename
 	#
 	if verbose:
-		print "Found:", description
-		print "",numnotes, "notes found."
+		print ("Found:", description)
+		print ("",numnotes, "notes found.")
 		for n,r in zip(notes,ratios):
-			print " %4.4f : %s"%(r, n)
-		print " check: indicated=found : %d=%d"%(numnotes,len(notes))
+			print (" %4.4f : %s"%(r, n))
+		print (" check: indicated=found : %d=%d"%(numnotes,len(notes)))
 	if error:
 		return [error, numnotes, notes, ratios]
 	else:
@@ -102,7 +102,7 @@ def parse_scala(scala, filename, verbose=True):
 def read_scala(filename, verbose=False):
 	" read and parse scala file into interval ratios "
 	try:
-		inf = open(filename, 'rU')
+		inf = open(filename, 'rB')
 		content = inf.readlines()
 		inf.close()
 		flag = verbose
@@ -294,10 +294,10 @@ class Neck(object):
 	def show_frets(self):
 		" pretty print "
 		for i,d in enumerate(self.frets):
-			print "%2d: %4.4f" %(i+1,d)
+			print ("%2d: %4.4f" %(i+1,d))
 		if self.bass_frets:
 			for i,d in enumerate(self.bass_frets):
-				print "%2d: %4.4f" %(i+1,d)
+				print ("%2d: %4.4f" %(i+1,d))
 
 	def compare_methods(self, howmany, verbose=True):
 		" show differences in length for the main methods (not scala) "
@@ -311,12 +311,12 @@ class Neck(object):
 		for i in range(1, len(methods)):
 			differences.append( [a-b for (a,b) in zip(distances[0], distances[i])] )
 		if verbose:
-			print "Differences from 12root2",
+			print("Differences from 12root2")
 			for i,m in enumerate(methods[1:]):
-				print "\nMethod = %s\n  " %(m),
+				print ("\nMethod = %s\n  " %(m))
 				for d in differences[i]:
-					print "%2.3f " %(d),
-			print
+					print ("%2.3f " %(d))
+			print("")
 		# package
 		combined = []
 		for i,m in enumerate(methods[1:]):
@@ -334,15 +334,15 @@ if __name__ == "__main__":
 	n = Neck(24)
 	f = n.calc_fret_offsets(n.length, 12, '12root2')
 	n.show_frets()
-	print n
+	print (n)
 	errors = n.compare_methods(22, False)
 	for m,e,d in errors:
-		print "for method '%s': max difference from 12Root2 = %4.3f%s (on highest fret)"%(m,e, n.units)
+		print ("for method '%s': max difference from 12Root2 = %4.3f%s (on highest fret)"%(m,e, n.units))
 	#
 	n = Neck(24)
 	f = n.calc_fret_offsets(n.length, 22, 'scala', scala_filename='scales/diat_chrom.scl')
 	n.show_frets()
-	print "Fanning"
+	print ("Fanning")
 	# n.set_fanned(25,0)
 	# n.show_frets()
 	# print n
@@ -370,9 +370,9 @@ if __name__ == "__main__":
 			# print "!!!!    ERROR",fname
 
 	## freq conversion
-	print
+	print("")
 	for f in [440,443,456,457, 500,777, 1086]:
-		print f, freq_to_note(f)
+		print (f, freq_to_note(f))
 
 	## fanned frets
 	# print
