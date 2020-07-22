@@ -8,7 +8,7 @@ import inkex, simplestyle
 import fret_scale as fs
 import os # for scala file filtering
 from math import radians, cos, sin, pi
-
+from lxml import etree
 
 ###----------------------------------------------------------------------------
 ### Styles - color and size settings
@@ -34,7 +34,7 @@ Centerline_style =   { 'stroke'           : Black,
 
 
 # Helper functions
-def build_line( (x1, y1), (x2, y2), unitFactor):
+def build_line(x1, y1, x2, y2, unitFactor):
     path = 'M %s,%s L %s,%s' % (x1*unitFactor, y1*unitFactor, x2*unitFactor, y2*unitFactor)
     return path
 
@@ -54,16 +54,16 @@ def draw_center_cross(x,y, parent, length=2, style=Line_style):
     " center cross for holes "
     d = 'M {0},{1} l {2},0 M {3},{4} l 0,{2}'.format(x-length,y, length*2, x,y-length)
     cross_attribs = { inkex.addNS('label','inkscape'): 'Center cross',
-                      'style': simplestyle.formatStyle(style), 'd': d }
-    inkex.etree.SubElement(parent, inkex.addNS('path','svg'), cross_attribs )
+                      'style': str(inkex.Style(style)), 'd': d }
+    etree.SubElement(parent, inkex.addNS('path','svg'), cross_attribs )
 
 def draw_SVG_circle(cx, cy, radius, parent, name='circle', style=Line_style):
     " structure an SVG circle entity under parent "
-    circ_attribs = {'style': simplestyle.formatStyle(style),
+    circ_attribs = {'style': str(inkex.Style(style)),
                     'cx': str(cx), 'cy': str(cy), 
                     'r': str(radius),
                     inkex.addNS('label','inkscape'): name}
-    circle = inkex.etree.SubElement(parent, inkex.addNS('circle','svg'), circ_attribs )
+    circle = etree.SubElement(parent, inkex.addNS('circle','svg'), circ_attribs )
 
 def draw_circle_marker(x,y, radius, parent):
     " circle with cross at center "
@@ -77,85 +77,85 @@ class Fret_ruler(inkex.Effect):
     def __init__(self):
         inkex.Effect.__init__(self)
         # main tab
-        self.OptionParser.add_option('--method',         action='store', type='string',
+        self.arg_parser.add_argument('--method',         action='store', type=str,
                                   dest='method',         default='12th Root of 2', help="Method to calculate scale")
-        self.OptionParser.add_option('--draw_style',     action='store', type='string',
+        self.arg_parser.add_argument('--draw_style',     action='store', type=str,
                                   dest='draw_style',     default='Ruler', help="How to draw the Ruler/NEck")
-        self.OptionParser.add_option("--nth",            action="store", type="int",
+        self.arg_parser.add_argument("--nth",            action="store", type=int,
                                   dest="nth",            default=12, help="For different number of notes in a scale")
-        self.OptionParser.add_option('--scala_filename', action='store', type='string',
+        self.arg_parser.add_argument('--scala_filename', action='store', type=str,
                                   dest='scala_filename', default='12tet', help="Name of file in scales directory")
-        self.OptionParser.add_option("--units",          action="store", type="string",
+        self.arg_parser.add_argument("--units",          action="store", type=str,
                                   dest="units",          default="in", help="The units of entered dimensions")
-        self.OptionParser.add_option("--length",         action="store", type="float",
+        self.arg_parser.add_argument("--length",         action="store", type=float,
                                   dest="length",         default=25.5, help="Length of the Scale (and Ruler)")
-        self.OptionParser.add_option("--width",          action="store", type="float",
+        self.arg_parser.add_argument("--width",          action="store", type=float,
                                   dest="width",          default=1.5, help="Width of the Ruler (= Nut if drawing a neck)")
-        self.OptionParser.add_option("--frets",          action="store", type="int",
+        self.arg_parser.add_argument("--frets",          action="store", type=int,
                                   dest="frets",          default=18, help="number of frets on the scale")
         #
-        self.OptionParser.add_option("--fanned",         action="store", type='inkbool',
+        self.arg_parser.add_argument("--fanned",         action="store", type=inkex.Boolean,
                                   dest="fanned",         default=False, help="Two scales on either side of the Neck")
-        self.OptionParser.add_option("--basslength",     action="store", type="float",
+        self.arg_parser.add_argument("--basslength",     action="store", type=float,
                                   dest="basslength",     default=25.5, help="Length of the Bass side Scale")
-        self.OptionParser.add_option("--perpendicular",  action="store", type="int",
+        self.arg_parser.add_argument("--perpendicular",  action="store", type=int,
                                   dest="perpendicular",  default=7, help="Fret number which is perpendicular to the Neck")
           
         #
-        self.OptionParser.add_option("--linewidth",      action="store", type="float",
+        self.arg_parser.add_argument("--linewidth",      action="store", type=float,
                                   dest="linewidth",      default=0.1, help="Width of drawn lines")
-        self.OptionParser.add_option("--notch_width",    action="store", type="float",
+        self.arg_parser.add_argument("--notch_width",    action="store", type=float,
                                   dest="notch_width",    default=0.125, help="Width of Fret notches on Router template")
-        self.OptionParser.add_option("--annotate",       action="store", type='inkbool',
+        self.arg_parser.add_argument("--annotate",       action="store", type=inkex.Boolean,
                                   dest="annotate",       default=True, help="Annotate with Markers etc")
-        self.OptionParser.add_option("--centerline",     action="store", type='inkbool',
+        self.arg_parser.add_argument("--centerline",     action="store", type=inkex.Boolean,
                                   dest="centerline",     default=True, help="Draw a centerline")
         # Neck
-        self.OptionParser.add_option("--constant_width", action="store", type='inkbool',
+        self.arg_parser.add_argument("--constant_width", action="store", type=inkex.Boolean,
                                   dest="constant_width", default=True, help="Use Bridge width as well to make Neck")
-        self.OptionParser.add_option("--width_bridge",   action="store", type="float",
+        self.arg_parser.add_argument("--width_bridge",   action="store", type=float,
                                   dest="width_bridge",   default=2.0, help="Width at the Bridge (drawing Neck not Ruler)")
-        self.OptionParser.add_option("--show_markers",   action="store", type='inkbool',
+        self.arg_parser.add_argument("--show_markers",   action="store", type=inkex.Boolean,
                                   dest="show_markers",   default=False, help="Show Neck Marker Positions")
-        self.OptionParser.add_option('--markers',        action='store', type='string',
+        self.arg_parser.add_argument('--markers',        action='store', type=str,
                                   dest='markers',        default='3,5,7,10,12,12,15', help="List of frets to draw markers on")
         #
-        self.OptionParser.add_option("--nutcomp",        action="store", type='inkbool',
+        self.arg_parser.add_argument("--nutcomp",        action="store", type=inkex.Boolean,
                                   dest="nutcomp",        default=False, help="Modify Nut position")
-        self.OptionParser.add_option("--nutcomp_value",  action="store", type="string",
+        self.arg_parser.add_argument("--nutcomp_value",  action="store", type=str,
                                   dest="nutcomp_value",  default="0.012in (0.30mm)", help="Preset (usual) Nut compensation values")
-        self.OptionParser.add_option("--nutcomp_manual", action="store", type="float",
+        self.arg_parser.add_argument("--nutcomp_manual", action="store", type=float,
                                   dest="nutcomp_manual", default=0.014, help="Manual distance to move Nut closer to Bridge")
         #
-        self.OptionParser.add_option("--show_curves",    action="store", type='inkbool',
+        self.arg_parser.add_argument("--show_curves",    action="store", type=inkex.Boolean,
                                   dest="show_curves",    default=False, help="Show a neck curvature ruler")
-        self.OptionParser.add_option("--neck_radius",    action="store", type="float",
+        self.arg_parser.add_argument("--neck_radius",    action="store", type=float,
                                   dest="neck_radius",    default=2.0, help="Radius of Neck curvature")
-        self.OptionParser.add_option("--arc_length",     action="store", type="float",
+        self.arg_parser.add_argument("--arc_length",     action="store", type=float,
                                   dest="arc_length",     default=2.0, help="Length of Arc")
-        self.OptionParser.add_option("--block_mode",     action="store", type='inkbool',
+        self.arg_parser.add_argument("--block_mode",     action="store", type=inkex.Boolean,
                                   dest="block_mode",     default=False, help="Draw block or finger style")
-        self.OptionParser.add_option("--arc_height",     action="store", type="float",
+        self.arg_parser.add_argument("--arc_height",     action="store", type=float,
                                   dest="arc_height",     default=2.0, help="height of Arc")
-        self.OptionParser.add_option("--string_spacing", action="store", type="float",
+        self.arg_parser.add_argument("--string_spacing", action="store", type=float,
                                   dest="string_spacing", default=2.0, help="Spacing between strings")
         #
-        self.OptionParser.add_option("--filter_tones",   action="store", type='inkbool',
+        self.arg_parser.add_argument("--filter_tones",   action="store", type=inkex.Boolean,
                                   dest="filter_tones",   default=True, help="Only show Scala files with this many notes in a scale.")
-        self.OptionParser.add_option("--scale",          action="store", type="int",
+        self.arg_parser.add_argument("--scale",          action="store", type=int,
                                   dest="scale",          default=12, help="number of Notes in the scale")
-        self.OptionParser.add_option("--filter_label",   action="store", type='inkbool',
+        self.arg_parser.add_argument("--filter_label",   action="store", type=inkex.Boolean,
                                   dest="filter_label",   default=True, help="Only show Scala files with this keyword in them.")
-        self.OptionParser.add_option("--keywords",        action="store", type="string",
+        self.arg_parser.add_argument("--keywords",        action="store", type=str,
                                   dest="keywords",        default="diatonic", help="Keywords to search for")
         # here so we can have tabs
-        self.OptionParser.add_option("", "--active-tab", 
-                                     action="store", type="string",
+        self.arg_parser.add_argument("-t", "--active-tab", 
+                                     action="store", type=str,
                                      dest="active_tab", default='ruler', help="Active tab.")
     def getUnittouu(self, param):
         " compatibility between inkscape 0.48 and 0.91 "
         try:
-            return inkex.unittouu(param)
+            return self.svg.unittouu(param)
         except AttributeError:
             return self.unittouu(param)
 
@@ -212,10 +212,10 @@ class Fret_ruler(inkex.Effect):
 ###
     def draw_label(self, x,y, label, parent, transform=False, style=Label_style):
         " add a text entity "
-        text_atts = {'style':simplestyle.formatStyle(style),
+        text_atts = {'style':str(inkex.Style(style)),
                      'x': str(x), 'y': str(y) }
         if transform: text_atts['transform'] = transform
-        text = inkex.etree.SubElement(parent, 'text', text_atts)
+        text = etree.SubElement(parent, 'text', text_atts)
         text.text = "%s" %(label)
 
 ###
@@ -241,10 +241,10 @@ class Fret_ruler(inkex.Effect):
         for i in range(3):
             path += " L %s,%s "%(pts[i][0]*self.convFactor, pts[i][1]*self.convFactor)
         path += "Z"
-        line_attribs = {'style' : simplestyle.formatStyle(Line_style),
+        line_attribs = {'style' : str(inkex.Style(Line_style)),
                         inkex.addNS('label','inkscape') : 'Outline' }
         line_attribs['d'] = path
-        ell = inkex.etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs )
+        ell = etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs )
         # Draw the fret lines
         distances = neck.frets # do the zeroth value as well
         for count, xt in enumerate(distances): # seq of x offsets for each fret
@@ -254,9 +254,9 @@ class Fret_ruler(inkex.Effect):
             if y1 != y2: # neck not straight
                 yt = y1 + ((xt-startx)/float(treble_length) * (y2-y1))
                 yb = y1 + ((xb-endx)/float(bass_length) * (y2-y1))
-            path = build_line([xt,-yt],[xb,yb], self.convFactor)
+            path = build_line(xt, -yt, xb, yb, self.convFactor)
             line_attribs['d'] = path
-            ell = inkex.etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs)
+            ell = etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs)
             # Fret Numbers on odd frets(+octave)
             if show_numbers and (count%2 == 0 or count == neck.notes_in_scale-1):
                 # try to push the lower fret numbers to the right a little
@@ -275,7 +275,7 @@ class Fret_ruler(inkex.Effect):
         distances = [0]
         distances.extend(neck.frets)
         # style
-        line_attribs = {'style' : simplestyle.formatStyle(Line_style),
+        line_attribs = {'style' : str(inkex.Style(Line_style)),
                         inkex.addNS('label','inkscape') : 'Outline' }
         # draw the fret notches, lines, labels
         for count, x in enumerate(distances):
@@ -285,16 +285,16 @@ class Fret_ruler(inkex.Effect):
                 self.draw_label(x*self.convFactor-Font_height, -y*self.convFactor+Font_height*2.2, count, parent)
                 Label_style['text-anchor'] = 'end'
             # other side markers
-            path2 = build_line([x,y],[x,notch_width*2-y], self.convFactor)
+            path2 = build_line(x, y, x, notch_width*2-y, self.convFactor)
             line_attribs['d'] = path2
-            ell = inkex.etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs)
+            ell = etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs)
         # close other side of template
         for i in range(3):
             path += " L %s,%s "%(pts[i][0]*self.convFactor, pts[i][1]*self.convFactor)
         path += "Z"
         # Draw
         line_attribs['d'] = path
-        inkex.etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs )
+        etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs )
 
     def draw_neck_curve_ruler(self, neck, radius, arc_length, arc_height, string_spacing, parent):
         "  draw arcs for curved fretboards "
@@ -340,10 +340,10 @@ class Fret_ruler(inkex.Effect):
         # close path
         path += 'z'
         ypos = diam_in + dist + tab_length + self.options.width*self.convFactor
-        line_attribs = {'style' : simplestyle.formatStyle(Line_style), inkex.addNS('label','inkscape') : 'Neck Curve',
+        line_attribs = {'style' : str(inkex.Style(Line_style)), inkex.addNS('label','inkscape') : 'Neck Curve',
                         'transform': 'rotate(%f) translate(%s,%s)' % (-angle_d/2 -90, -ypos,-dist)}
         line_attribs['d'] = path
-        inkex.etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs )
+        etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs )
         # label
         size = "%d"%radius if radius-int(radius) == 0 else "%4.2f"%(radius)
         Label_style['text-anchor'] = 'start'
@@ -405,10 +405,10 @@ class Fret_ruler(inkex.Effect):
             else:
                 endx = -neck.fan_offset
         y = self.options.width/2
-        path = build_line((startx+distance, -y), (endx+distance, y), self.convFactor)
-        line_attribs = {'style' : simplestyle.formatStyle(Dash_style), 'd':path,
+        path = build_line(startx+distance, -y, endx+distance, y, self.convFactor)
+        line_attribs = {'style' : str(inkex.Style(Dash_style)), 'd':path,
                         inkex.addNS('label','inkscape') : 'Nut Compensation' }
-        inkex.etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs)
+        etree.SubElement(parent, inkex.addNS('path','svg'), line_attribs)
 
     def draw_neck_markers(self, neck, parent):
         " draw symbol at fret pos. N possible "
@@ -459,9 +459,9 @@ class Fret_ruler(inkex.Effect):
             if scala_filename[-4:] != ".scl":
                 scala_filename += ".scl"
         # Create group center of view
-        t = 'translate(%s,%s)' % (self.view_center[0]-self.options.length*self.convFactor/2, self.view_center[1])
+        t = 'translate(%s,%s)' % (self.svg.namedview.center[0]-self.options.length*self.convFactor/2, self.svg.namedview.center[1])
         grp_attribs = {inkex.addNS('label','inkscape'):'Fret Ruler', 'transform':t}
-        grp = inkex.etree.SubElement(self.current_layer, 'g', grp_attribs)
+        grp = etree.SubElement(self.svg.get_current_layer(), 'g', grp_attribs)
         page = self.options.active_tab[1:-1]
         draw_style = self.options.draw_style
         # check if on Scala filters page
@@ -498,10 +498,10 @@ class Fret_ruler(inkex.Effect):
                 self.draw_ruler(neck, grp, self.options.annotate)
             self.draw_title(neck, grp, title)
             if self.options.centerline and self.options.draw_style != 'template':
-                path = build_line((-0.5,0), (max(neck.length, neck.bass_scale)+0.5, 0), self.convFactor)
-                line_attribs = {'style' : simplestyle.formatStyle(Centerline_style), 'd':path,
+                path = build_line(-0.5,0, max(neck.length, neck.bass_scale)+0.5, 0, self.convFactor)
+                line_attribs = {'style' : str(inkex.Style(Centerline_style)), 'd':path,
                                 inkex.addNS('label','inkscape') : 'Centerline' }
-                inkex.etree.SubElement(grp, inkex.addNS('path','svg'), line_attribs)
+                etree.SubElement(grp, inkex.addNS('path','svg'), line_attribs)
             # Neck specials
             if page == 'neck' or draw_style=='neck':
                 # Nut compensation
@@ -526,7 +526,7 @@ class Fret_ruler(inkex.Effect):
 
 # Create effect instance and apply it.
 if __name__ == '__main__':
-    Fret_ruler().affect()
+    Fret_ruler().run()
 
 
 ### TODO:
