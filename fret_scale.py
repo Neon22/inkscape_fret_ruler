@@ -1,7 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # Distributed under the terms of the GNU Lesser General Public License v3.0
 ### Author: Neon22 - github 2016
-
 
 ### fret scale calculation code
 
