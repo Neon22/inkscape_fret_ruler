@@ -16,7 +16,7 @@ def fret_calc_ratio(length, howmany, ratio):
 		distances.append(prev+distance)
 		length -= distance
 		prev += distance
-		# print "%02d  %6.4f  %s" %(i, prev, distance)
+		# print("%02d  %6.4f  %s" %(i, prev, distance))
 	return distances
 
 def fret_calc_root2(length, howmany, numtones=12):
@@ -27,7 +27,7 @@ def fret_calc_root2(length, howmany, numtones=12):
 		# d = s-(s/ (2^ (n/12)))
 		distance = length - (length / (pow(2, (i+1)/(float(numtones))) ))
 		distances.append(distance)
-		# print "%02d  %6.4f" %(i, distance)
+		# print("%02d  %6.4f" %(i, distance))
 	return distances
 
 def fret_calc_scala(length, howmany, scala_notes):
