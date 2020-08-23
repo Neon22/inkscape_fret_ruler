@@ -3,16 +3,16 @@
     <name>Fret Ruler</name>
     <id>Neon22.github.fret_ruler</id>
     <dependency type="executable" location="extensions">fret_ruler.py</dependency>
-    <param name="active-tab" type="notebook">
+    <param name="active_tab" type="notebook">
         <page name="ruler" gui-text="Ruler ">
 		<vbox>
             <label>Draw a Ruler for stringed instrument Necks.</label>
-            <param name="draw_style" gui-text="Draw Style" type="optiongroup" appearance="combo">
+            <param name="draw_style" gui-text="Draw Style" type="optiongroup" appearance="combo" indent="1">
                 <option value="ruler">Ruler</option>
                 <option value="template">Router Template</option>
                 <option value="neck">Neck</option>
             </param>
-            <param name="method" gui-text="Calculation Method" type="optiongroup" appearance="combo">
+            <param name="method" gui-text="Calculation Method" type="optiongroup" appearance="combo" indent="1">
                 <option value="12root2">12th Root of 2</option>
                 <option value="18">18</option>
                 <option value="17.817">17.817</option>
@@ -23,26 +23,26 @@
 			<label>Next two, only if named method has been selected.</label>
 			<hbox>
 				<param name="nth" type="int" min="2" max="50" gui-text="(Method=Nth Root of 2): Notes in Scale:">0</param>
-				<param name="scala_filename" type="string" gui-text="(Method=Scala): Scala filename:">12tet</param>
+				<param name="scala_filename" type="string" gui-text="(Method=Scala): Scala filename:">14-26</param>
 			</hbox>
 		</vbox>
             <label>Dimensions:</label>
-            <param name="units" gui-text="Units for following dimensions" type="optiongroup" appearance="combo">
+            <param name="units" gui-text="Units for following dimensions" type="optiongroup" appearance="combo" indent="1">
                 <option value="in">in</option>
                 <option value="mm">mm</option>
             </param>
-            <param name="length" type="float" min="1" max="1000.0" precision="2" gui-text="Scale Length in units (Ruler length)">25.5</param>
-            <param name="width" type="float" min="0.5" max="1000.0" precision="2" gui-text="Width (Nut) in units">1.35</param>
-            <param name="frets" type="int" min="2" max="500" gui-text="Number of frets to draw">18</param>
+            <param name="length" type="float" indent="1" min="1" max="1000.0" precision="2" gui-text="Scale Length in units (Ruler length)">25.5</param>
+            <param name="width" type="float" indent="1" min="0.5" max="1000.0" precision="2" gui-text="Width (Nut) in units">1.35</param>
+            <param name="frets" type="int" indent="1" min="2" max="500" gui-text="Number of frets to draw">18</param>
             <label>Fanned:</label>
-            <param name="fanned" type="boolean" gui-text="Fanned fret style (Treble and Bass scale lengths)">false</param>
+            <param name="fanned" type="boolean" indent="1" gui-text="Fanned fret style (Treble and Bass scale lengths)">false</param>
 			<hbox>
-				<param name="basslength" type="float" min="1" max="1000.0" precision="2" gui-text="Bass Scale Length">25.5</param>
-				<param name="perpendicular" type="int" min="0" max="500" gui-text="Perpendicular Fret">7</param>
+				<param name="basslength" type="float" indent="1" min="1" max="1000.0" precision="2" gui-text="Bass Scale Length">25.5</param>
+				<param name="perpendicular" type="int" indent="1" min="0" max="500" gui-text="Perpendicular Fret">7</param>
 			</hbox>
             <label>Styles:</label>
-            <param name="linewidth" type="float" min="0.01" max="2.0" precision="2" gui-text="Width of lines (mm)">0.1</param>
-            <param name="notch_width" type="float" min="0.0001" max="4.0" precision="4" gui-text="(Router template) Width of Fret notches">0.125</param>
+            <param name="linewidth" type="float" indent="1" min="0.01" max="2.0" precision="2" gui-text="Width of lines (mm)">0.1</param>
+            <param name="notch_width" type="float" indent="1" min="0.0001" max="4.0" precision="4" gui-text="(Router template) Width of Fret notches">0.125</param>
 			<hbox>
 				<param name="annotate" type="boolean" gui-text="Fret numbering">true</param>
 				<param name="centerline" type="boolean" gui-text="Centerline">true</param>
@@ -53,23 +53,23 @@
             <param name="constant_width" type="boolean" gui-text="Constant width (=Nut)">false</param>
             <param name="width_bridge" type="float" min="0.5" max="1000.0" precision="2" gui-text="OR: Width (at Bridge) in units">2.0</param>
             <param name="show_markers" type="boolean" gui-text="Show Markers">false</param>
-            <param name="markers" type="string" gui-text="Marked frets:">3,5,7,10,12,12,15</param>
+            <param name="markers" type="string" indent="1" gui-text="Marked frets:">3,5,7,10,12,12,15</param>
             <param name="nutcomp" type="boolean" gui-text="Include Nut Compensation">false</param>
-            <param name="nutcomp_value" gui-text="Preset values" type="optiongroup" appearance="combo">
+            <param name="nutcomp_value" gui-text="Preset values" type="optiongroup" appearance="combo" indent="1">
                 <option value="0.012">0.012in (0.30mm)</option>
                 <option value="0.014">0.014in (0.36mm)</option>
                 <option value="manual">Manual</option>
             </param>
-            <param name="nutcomp_manual" type="string" gui-text="Manual nut compensation distance">0.014</param>
+            <param name="nutcomp_manual" type="string" indent="1" gui-text="Manual nut compensation distance">0.014</param>
         </page>
         <page name="curvature" gui-text="Curvature ">
             <param name="descr" type="description">Additional Neck Curvature Ruler</param>
             <param name="show_curves" type="boolean" gui-text="Show neck curvature ruler">true</param>
-            <param name="neck_radius" type="float" min="4" max="100.0" precision="2" gui-text="Radius of Neck curvature in units">9.75</param>
-            <param name="arc_length" type="float" min="1" max="100.0" precision="2" gui-text="Arc Length (units)">5</param>
-            <param name="block_mode" type="boolean" gui-text="Draw as a block (vs finger)">true</param>
-            <param name="arc_height" type="float" min="0.1" max="50.0" precision="2" gui-text="Height of the Arc(units)">0.5</param>
-            <param name="string_spacing" type="float" min="0.1" max="20.0" precision="2" gui-text="String separation(for finger style) (units)">0.3</param>
+            <param name="neck_radius" type="float" indent="1" min="4" max="100.0" precision="2" gui-text="Radius of Neck curvature in units">9.75</param>
+            <param name="arc_length" type="float" indent="1" min="1" max="100.0" precision="2" gui-text="Arc Length (units)">5</param>
+            <param name="block_mode" type="boolean" indent="1" gui-text="Draw as a block (vs finger)">true</param>
+            <param name="arc_height" type="float" indent="1" min="0.1" max="50.0" precision="2" gui-text="Height of the Arc(units)">0.5</param>
+            <param name="string_spacing" type="float" indent="1" min="0.1" max="20.0" precision="2" gui-text="String separation(for finger style) (units)">0.3</param>
             <param name="descr" type="description" xml:space="preserve">Print or Metal Lasercut as a thin radius guide,
 or export to Openscad to make a longer 3d printed neck support or sanding block.
 Sizes:
@@ -81,10 +81,10 @@ See Help Curve Tab
             <param name="descr" type="description">It shows you all the scala files matching the search filters below. Enter the filename on the first tab.</param>
             <param name="descr" type="description">This search only works if you can see this tab.</param>
             <param name="descr" type="description">There may be &gt;4000 scala files. So choose wisely.</param>
-            <param name="filter_tones" type="boolean" gui-text="Filter by number of tones in a scale.">true</param>
-            <param name="scale" type="int" min="2" max="1000" gui-text="Notes in a scale:">12</param>
+            <param name="filter_tones" type="boolean" gui-text="Filter by number of tones in a scale.">false</param>
+            <param name="scale" type="int" indent="1" min="2" max="1000" gui-text="Notes in a scale:">12</param>
             <param name="filter_label" type="boolean" gui-text="Filter by word in title / internal description.">true</param>
-            <param name="keywords" type="string" gui-text="Key word:">diatonic</param>
+            <param name="keywords" type="string" indent="1" gui-text="Key word:">5ths</param>
         </page>
         <page name="help" gui-text="Help ">
             <param name="descr" type="description" xml:space="preserve">USE:

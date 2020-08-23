@@ -68,7 +68,7 @@ def parse_scala(scala, filename, verbose=True):
 				if not description:
 					# expecting description line first
 					# may contain unprintable characters - force into unicode
-					description = unicode(line, errors='ignore')
+					description = line#unicode(line, errors='ignore')
 				elif numnotes == 0:
 					# expecting notes count after description
 					numnotes = int(first)
@@ -97,18 +97,15 @@ def parse_scala(scala, filename, verbose=True):
 		return [error, numnotes, notes, ratios]
 	else:
 		return [description, numnotes, notes, ratios]
-
+		
 def read_scala(filename, verbose=False):
 	" read and parse scala file into interval ratios "
-	try:
-		inf = open(filename, 'rB')
-		content = inf.readlines()
-		inf.close()
-		flag = verbose
-		# if filename.find("dyadic") > -1: flag = True
-		return parse_scala(content, filename, flag)
-	except:
-		return ["ERROR: Failed to load "+filename, 2, [1], [1.01]]
+	pos = 0
+	inf = open(filename, 'r')
+	content = inf.readlines()
+	inf.close()
+	flag = verbose
+	return parse_scala(content, filename, flag)
 
 		
 ### frequency to note
@@ -338,9 +335,9 @@ if __name__ == "__main__":
 	for m,e,d in errors:
 		print ("for method '%s': max difference from 12Root2 = %4.3f%s (on highest fret)"%(m,e, n.units))
 	#
-	n = Neck(24)
-	f = n.calc_fret_offsets(n.length, 22, 'scala', scala_filename='scales/diat_chrom.scl')
-	n.show_frets()
+	# n = Neck(24)
+	# f = n.calc_fret_offsets(n.length, 22, 'scala', scala_filename='scales/diat_chrom.scl')
+	# n.show_frets()
 	print ("Fanning")
 	# n.set_fanned(25,0)
 	# n.show_frets()
@@ -357,16 +354,19 @@ if __name__ == "__main__":
 	# for d in fret_calc_scala(24, scala_notes[-1]): print d
 
 	# test load all scala files
-	# import os
-	# probable_dir = "scales/"
-	# files = os.listdir(probable_dir)
-	# for f in files:
-		# fname = probable_dir+f
-		# # print f
-		# data = read_scala(fname)
-		# # print "     ",data[0]
-		# if data[0][:5] == "ERROR":
-			# print "!!!!    ERROR",fname
+	import os
+	# probable_dir = os.getcwd()+'/scales/'#"./scales/"
+	probable_dir = "C:/Users/Asus/AppData/Roaming/inkscape/extensions/scales/"
+	files = os.listdir(probable_dir)
+	print (len(files))
+	for f in files:
+		fname = os.path.normpath(os.path.join(probable_dir, f))
+		# print(fname)
+		data = read_scala(fname)
+		# print("     ",data[0])
+		if fname.find("dya") > -1: print("     ",data[0])
+		if data[0][:5] == "ERROR":
+			print( "!!!!    ERROR",fname)
 
 	## freq conversion
 	print("")
